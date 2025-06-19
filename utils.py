@@ -25,7 +25,7 @@ def get_units_details(rows):
     return actual_quantity,expected_quantity
 
 
-def is_bulk_item(row):
+def is_bulk_item(code,desc):
     '''
     filter out the bulk items from all the items of the work_orders_subcomponents
     '''
@@ -35,8 +35,8 @@ def is_bulk_item(row):
     is_bulk = False
 
 
-    item_code = int(row[0].split('-')[1])
-    desc = row[2]
+    item_code = int(code.split('-')[1])
+    
 
 
     # debugs 
@@ -63,7 +63,13 @@ def is_bulk_item(row):
     
     return is_bulk
 
+def filter_bulk_item(bulk_items):
+    filtered_bulk_items =[]
+    for bulk_item in bulk_items:
+        if is_bulk_item(bulk_item["bulk_item_code"], bulk_item["bulk_item_desc"]):
+            filtered_bulk_items.append(bulk_item)
 
+    return filtered_bulk_items
 
 def get_work_oder_no(work_order):
     # print(" parsing work order ")
@@ -104,11 +110,30 @@ def get_default_dates():
     this_day = today  # Use current date as end date instead of Sunday
     this_week_start = this_monday.strftime("%Y-%m-%d")
     this_week_end = this_day.strftime("%Y-%m-%d")
-    return this_week_start, this_week_end
+    
+    # Return current week's Monday and Sunday in "YYYY-MM-DD" format
+    this_week_monday = this_monday.strftime("%Y-%m-%d")
+    this_week_sunday = (this_monday + timedelta(days=6)).strftime("%Y-%m-%d")
+    return this_week_monday, this_week_sunday
+    # return this_week_start, this_week_end
    
 
-    return start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")
+    # return start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")
 
+
+def get_dates(req_params):
+    """
+    Get the start and end dates from the request parameters.
+    If not provided, return default dates.
+    """
+    start_date = req_params.get('start_date')
+    end_date = req_params.get('end_date')
+
+    if not start_date or not end_date:
+        start_date, end_date = get_default_dates()
+
+    
+    return start_date, end_date
 
 
 def generate_bulk_item_dates(start_date, end_date, suffix):
@@ -133,3 +158,4 @@ def generate_bulk_item_dates(start_date, end_date, suffix):
         current += timedelta(days=1)
 
     return possible_codes
+

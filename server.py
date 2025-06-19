@@ -6,7 +6,7 @@ import json
 from config import conn_params
 from data_adaptor import *
 from utils import *
-
+from data_processor import *
 
 app = Flask(__name__)
 CORS(app)
@@ -20,8 +20,17 @@ def start_server():
 @app.get('/test')
 def test_server():
     print("Tests running")
+    formatted_data = format_data(request.args)
     return {"response":"Hello World"}
 
+@app.route('/schedule-data/v1')
+def get_schedule_data_v1():
+    # This is latest update 
+    data = fetch_schedule_data(request.args)
+    if data:
+        return format_data(data)
+    else:
+        return jsonify({"message": "No data found"}), 404
 
 
 
@@ -126,7 +135,7 @@ def get_schedule_data(test=False):
             query_params.append(room_pattern)
 
 
-        query_filters.append(" LIMIT 10 ")
+        #query_filters.append("LIMIT 15")
 
         final_query = query + "\n" + "\n".join(query_filters)
 
