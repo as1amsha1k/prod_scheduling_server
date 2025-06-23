@@ -110,6 +110,7 @@ def fetch_schedule_data(req_params):
     cur = conn.cursor()
     # Execute a query
     final_query,query_params = prepare_sql_query(req_params)
+    # return {}
 
     # we are using dates to find the bulk item details
     # start_date,end_date = get_dates(req_params)
@@ -226,9 +227,10 @@ def prepare_sql_query(req_params):
         # line filter query 
         query_filters.append(" AND l.name = %s ")
         query_params.append(line_id)
-    if room_id:
+    if room_id and not line_id:
         # line filter query 
-        room_pattern = '%' + room_id + '%'
+        room_str = get_room(room_id)
+        room_pattern =  room_str + '.%'
         query_filters.append(" AND l.name LIKE  %s ")
         query_params.append(room_pattern)
 

@@ -82,7 +82,7 @@ def parse_db_data(rows):
 
         # a new row of work order will process this 
         if work_order_id not in work_orders_set:
-            print(work_order_id+" wo")
+            #print(work_order_id+" wo")
             if not is_first:
                 # process work_orders and save them 
                 total =0
@@ -94,7 +94,7 @@ def parse_db_data(rows):
                 result_item["total"]=total
 
                 result_item["bulk_items"]=filter_bulk_item(result_item["bulk_items"])
-                print(json.dumps(result_item, indent=2))
+                #print(json.dumps(result_item, indent=2))
                 result.append(result_item)
 
             work_orders_set.add(work_order_id)

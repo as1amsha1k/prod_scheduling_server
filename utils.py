@@ -58,7 +58,7 @@ def is_bulk_item(code,desc):
     if(item_code == 2):
         for item_code in bulk_item_codes:
             if item_code in desc.lower():
-                print(" found 02 bulk blend")
+                #print(" found 02 bulk blend")
                 is_bulk = True
     
     return is_bulk
@@ -120,6 +120,17 @@ def get_default_dates():
 
     # return start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")
 
+def get_room(room_id):
+    print(room_id)
+    # process proper query format and return it 
+    room_id = room_id.split(' ')[1]
+    print(room_id)
+
+    room_no = int(room_id)
+    if room_no <10:
+        return '0'+str(room_no)
+    else:
+        return str(room_no)
 
 def get_dates(req_params):
     """
