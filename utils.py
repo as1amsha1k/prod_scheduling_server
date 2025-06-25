@@ -121,10 +121,10 @@ def get_default_dates():
     # return start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")
 
 def get_room(room_id):
-    print(room_id)
+    #print(room_id)
     # process proper query format and return it 
     room_id = room_id.split(' ')[1]
-    print(room_id)
+    #print(room_id)
 
     room_no = int(room_id)
     if room_no <10:

@@ -27,6 +27,8 @@ def test_server():
 def get_schedule_data_v1():
     # This is latest update 
     data = fetch_schedule_data(request.args)
+    if isinstance(data, tuple) and data[1] == 400:
+        return data
     if data:
         return format_data(data)
     else:

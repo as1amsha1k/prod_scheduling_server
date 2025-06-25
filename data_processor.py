@@ -10,6 +10,7 @@ def format_data(data):
     This function is a placeholder for actual data formatting logic.
     """
     # Example formatting logic
+    data = sorted(data, key=lambda x: x.get("line_name", ""))
     
     return data
 
@@ -89,7 +90,9 @@ def parse_db_data(rows):
                 distinct_bulk_items = len(bulk_item_set)
                 for day in days:
                     actual_day=result_item[day]/distinct_bulk_items
-                    result_item[day]= actual_day
+                    actual_day =float(format(actual_day, ".2f"))
+                    
+                    result_item[day] = actual_day
                     total+=actual_day
                 result_item["total"]=total
 
@@ -128,9 +131,10 @@ def parse_db_data(rows):
     total =0
     distinct_bulk_items = len(bulk_item_set)
     for day in days:
-        actual_day=result_item[day]/distinct_bulk_items
-        result_item[day]= actual_day
-        total+=actual_day
+        actual_day = result_item[day] / distinct_bulk_items
+        actual_day =float(format(actual_day, ".2f"))
+                    
+        result_item[day] = actual_day
     result_item["total"]=total
     #result_item["bulk_items"]=result_item["bulk_items"]
     result_item["bulk_items"]=filter_bulk_item(result_item["bulk_items"])

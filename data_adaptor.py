@@ -209,7 +209,13 @@ def prepare_sql_query(req_params):
     if not start_date or  not end_date :
         start_date,end_date = get_default_dates()
     if  start_date and  end_date:
-        query_filters.append("AND wo_shop.PLANNED_START >= %s AND wo_shop.PLANNED_END < %s")
+
+        # choose appropriate date filters 
+
+        #query_filters.append("AND wo_shop.PLANNED_START >= %s AND wo_shop.PLANNED_END < %s")
+        
+        query_filters.append("AND a.STARTS_AT >= %s AND a.ENDS_AT < %s")
+    
         query_params.append(start_date)
         query_params.append(end_date)
         
