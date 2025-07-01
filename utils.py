@@ -145,6 +145,19 @@ def get_dates(req_params):
 
     
     return start_date, end_date
+def generate_bulk_wo_dates(req_params):
+    start_date = req_params.get('startDate')
+
+    end_date = req_params.get('endDate')
+    if not start_date or  not end_date :
+        start_date,end_date = get_default_dates()
+
+    # Push start_date a week back and return both dates as strings
+    start_date_dt = datetime.strptime(str(start_date), "%Y-%m-%d")
+    start_date_dt = start_date_dt - timedelta(days=7)
+    start_date_str = start_date_dt.strftime("%Y-%m-%d")
+    end_date_str = str(end_date)
+    return start_date_str, end_date_str
 
 
 def generate_bulk_item_dates(start_date, end_date, suffix):

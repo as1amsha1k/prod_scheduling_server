@@ -69,23 +69,6 @@ def fetch_bulk_item_details(start_date,end_date,work_order_id,cur):
         print(" done ")
 
 
-def fetch_bulk_item_work_order(start_date,end_date,bulk_item_code,cur):
-    # filter on wo.code and date 
-    item_work_order=None
-
-    possible_codes = generate_bulk_item_dates(start_date,end_date,bulk_item_code)
-    placeholders = ', '.join(['%s'] * len(possible_codes))
-
-    query = f"""
-    SELECT ndp_source_row_id
-    FROM SHOP_FLOOR_CONTROL_PROD_MSI_EXPRESS_SHARE.LATEST.WORK_ORDERS wo
-    WHERE wo.code IN ({placeholders})
-    """
-
-    print("--------------EXECUTING FETCH BULK ITEM WORK ORDER QUERY -----------------")
-    print(query % tuple(repr(code) for code in possible_codes))
-    print("-------------- QUERY END -----------------")
-
 
 
 
@@ -129,9 +112,20 @@ def fetch_schedule_data(req_params):
 
     rows = cur.fetchall()
 
-    return parse_db_data(rows)
+    data= parse_db_data(rows)
+
+    start,end = generate_bulk_wo_dates(req_params)
+
+    conn = get_snowflake_connection()
+    try:
+        cur = conn.cursor()
+        data = populate_bulk_wo(start,end,data,cur)
+    finally:
+        cur.close()
+        conn.close()
 
     
+    return data
 
 
 def prepare_sql_query(req_params):

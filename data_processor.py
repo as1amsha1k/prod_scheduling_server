@@ -3,6 +3,50 @@
 from flask import request
 import json
 from utils import *
+from connection_manager import *
+
+
+def fetch_bulk_item_work_order(start_date,end_date,bulk_item_code,cur):
+    # filter on wo.code and date 
+    item_work_order=None
+
+   
+
+    possible_codes = generate_bulk_item_dates(start_date,end_date,bulk_item_code)
+    placeholders = ', '.join(['%s'] * len(possible_codes))
+
+    query = f"""
+    SELECT ndp_source_row_id
+    FROM SHOP_FLOOR_CONTROL_PROD_MSI_EXPRESS_SHARE.LATEST.WORK_ORDERS wo
+    WHERE wo.code IN ({placeholders})
+    """
+
+    # print("--------------EXECUTING FETCH BULK ITEM WORK ORDER QUERY -----------------")
+    # print("-------------- QUERY END -----------------")
+
+    params = tuple(possible_codes)
+
+    # print("Query to execute:", query)
+    # print("Possible codes:", params)
+
+    
+    try:
+        cur.execute(query, params)
+        rows = cur.fetchall()
+    except Exception as e:
+        print(f"Error executing query: {e}")
+        rows = []
+    if len(rows)>0:
+     
+     item_work_order = rows[0][0]
+
+
+
+
+
+    return item_work_order
+
+
 
 def format_data(data):
     """
@@ -13,6 +57,24 @@ def format_data(data):
     data = sorted(data, key=lambda x: x.get("line_name", ""))
     
     return data
+
+def populate_bulk_wo(start_date, end_date, data,cur):
+
+# process this data and populate bulk item WO
+  
+
+    for prod_item in data:
+        if "bulk_items" not in prod_item or not prod_item["bulk_items"]:
+            continue
+        # print(prod_item["bulk_items"])
+
+        bulk_item_code =prod_item["bulk_items"][0]["bulk_item_code"]
+        prod_item["bulk_items"][0]["bulk_item_work_order"] = fetch_bulk_item_work_order(start_date,end_date,bulk_item_code,cur)
+
+
+
+    return data
+
 
 
 def parse_db_data(rows):
@@ -133,6 +195,7 @@ def parse_db_data(rows):
     for day in days:
         actual_day = result_item[day] / distinct_bulk_items
         actual_day =float(format(actual_day, ".2f"))
+        total+=actual_day
                     
         result_item[day] = actual_day
     result_item["total"]=total
