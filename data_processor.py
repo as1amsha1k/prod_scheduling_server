@@ -4,6 +4,7 @@ from flask import request
 import json
 from utils import *
 from connection_manager import *
+from co_util import *
 
 
 def fetch_bulk_item_work_order(start_date,end_date,bulk_item_code,cur):
@@ -50,14 +51,76 @@ def fetch_bulk_item_work_order(start_date,end_date,bulk_item_code,cur):
 
 def format_data(data):
     """
-    Format the data to be used by the client.
-    This function is a placeholder for actual data formatting logic.
+    Format the data to be used by the client. 
+    sort via line_name and add change over for items in the same line
+  
     """
-    # Example formatting logic
     data = sorted(data, key=lambda x: x.get("line_name", ""))
-    
+
+    # return data
+
+    add_change_overs(data)
     return data
 
+def add_change_overs(data): 
+
+    co_data = []
+
+    i = 0
+    while i < len(data):
+
+        current_line = data[i]["line_name"]
+        j = i + 1
+        while j < len(data) and data[j]["line_name"] == current_line:
+            j += 1
+        print(f"Processing line: {current_line} from index {i} to {j-1}")
+        for index in range(i, j):
+            print(data[index]["line_name"])
+        populate_co_line(data, i, j)
+
+        print(f"co_data length: {len(co_data)}")
+
+        print(f"co_data for i={i}, j={j}")
+
+
+        i = j+1
+    
+
+
+def populate_co_line(data,i,j):
+
+    co_data = []
+
+    raw_data=[]
+
+
+
+
+
+    for idx in range(i, j-1):
+        co_item={}
+        co_item["is_changeover"] = True
+        co_item["line_name"] = data[idx]["line_name"]
+        co_item["work_order_id"] = data[idx]["work_order_id"]
+        # print(data[idx])
+        
+        # # x= int(input("Press Enter to continue..."))
+        print(f"i: {idx}, j: {idx+1}, item_code_1: {data[idx]['work_order_item_code']}, item_code_2: {data[idx+1]['work_order_item_code']}")
+        
+        
+        if data[idx]["work_order_item_code"] is not None and data[idx+1]["work_order_item_code"] is not None:
+            code = get_co(data[idx]["work_order_item_code"], data[idx+1]["work_order_item_code"])
+            print(f"Changeover code: {code}")
+            co_item["co_code"] = code
+        if code:
+            data[idx]["co_code"] = code
+        else:
+            data[idx]["co_code"] = ''
+
+
+
+
+        
 def populate_bulk_wo(start_date, end_date, data,cur):
 
 # process this data and populate bulk item WO
@@ -152,7 +215,7 @@ def parse_db_data(rows):
                 distinct_bulk_items = len(bulk_item_set)
                 for day in days:
                     actual_day=result_item[day]/distinct_bulk_items
-                    actual_day =float(format(actual_day, ".2f"))
+                    actual_day = int(actual_day)
                     
                     result_item[day] = actual_day
                     total+=actual_day
@@ -194,7 +257,7 @@ def parse_db_data(rows):
     distinct_bulk_items = len(bulk_item_set)
     for day in days:
         actual_day = result_item[day] / distinct_bulk_items
-        actual_day =float(format(actual_day, ".2f"))
+        actual_day = int(actual_day)
         total+=actual_day
                     
         result_item[day] = actual_day
