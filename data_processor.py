@@ -5,6 +5,8 @@ import json
 from utils import *
 from connection_manager import *
 from co_util import *
+from datetime import datetime
+import os
 
 
 def fetch_bulk_item_work_order(start_date,end_date,bulk_item_code,cur):
@@ -60,6 +62,15 @@ def format_data(data):
     # return data
 
     add_change_overs(data)
+
+    # # Build a timestamped file path for Excel download
+    # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # download_dir = "downloads"
+    # os.makedirs(download_dir, exist_ok=True)
+    # excel_filename = f"production_schedule_{timestamp}.xlsx"
+    # excel_path = os.path.join(download_dir, excel_filename)
+
+    # # You can now use `excel_path` to save the Excel file for download
     return data
 
 def add_change_overs(data): 
@@ -75,15 +86,14 @@ def add_change_overs(data):
             j += 1
         print(f"Processing line: {current_line} from index {i} to {j-1}")
         for index in range(i, j):
-            print(data[index]["line_name"])
+            print(data[index]["line_name"],index)
         populate_co_line(data, i, j)
 
-        print(f"co_data length: {len(co_data)}")
 
         print(f"co_data for i={i}, j={j}")
 
 
-        i = j+1
+        i = j
     
 
 
@@ -200,6 +210,7 @@ def parse_db_data(rows):
         bulk_item_code = row[12]
         bulk_item_reference = row[13]
         bulk_item_desc = row[14]
+        people = row[16]
 
         
 
@@ -243,6 +254,7 @@ def parse_db_data(rows):
         result_item['work_order_id'] = work_order_id
         result_item['work_order_reference'] = work_order_reference
         result_item['notes'] = notes
+        result_item['people'] = people
 
         if bulk_item_code not in bulk_item_set:
             bulk_item_set.add(bulk_item_code)

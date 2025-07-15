@@ -147,7 +147,8 @@ def prepare_sql_query(req_params):
                 j.ndp_source_row_id as job_number,
                 wo.reference1 as work_order_reference,
                 wo.DESCRIPTION as notes,
-                items.code, items.alternate_code_2, items.description,items.is_finished_good
+                items.code, items.alternate_code_2, items.description,items.is_finished_good,
+                wo.standard_people
             FROM
                 "PRODUCTION_SCHEDULING_PROD_MSI_EXPRESS_SHARE"."LATEST"."WORK_BLOCKS" a
             LEFT JOIN "PRODUCTION_SCHEDULING_PROD_MSI_EXPRESS_SHARE"."LATEST".sites b ON
